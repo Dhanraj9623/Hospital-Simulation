@@ -1,14 +1,13 @@
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
-import java.util.Scanner;
 import javax.swing.*;
 import java.awt.event.*;
 class Hospital{
     Gui gui = new Gui();
     Random random = new Random();
     PriorityQueue<Patient> patientQueue = new PriorityQueue<>((p1, p2) -> {
-        if (p1.getArrivalTime() == p2.getArrivalTime()) {
+        if(p1.getArrivalTime() == p2.getArrivalTime()){
             return Integer.compare(p2.getPriority(), p1.getPriority());
         }
         return Integer.compare(p1.getArrivalTime(), p2.getArrivalTime());
@@ -18,17 +17,13 @@ class Hospital{
     Bed[] beds;
     Staff[] staffs;
     WaitingArea waitingArea;
+    int totalTreatmentTime,services;
 
-    public Hospital() {
+    public Hospital(){
         gui.create();
-        
     }
-    
-    
     void buttonRun(){
-        boolean simulationRunning = true;
         JButton button = gui.getButton();
-        JProgressBar progressBar = gui.getProgressBar();
         button.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 gui.setField1Text("Running");
@@ -41,7 +36,7 @@ class Hospital{
                             int progress;
                             if (i <= totalIterations / 2){
                                 progress = 2 * i;
-                            } 
+                            }
                             else{
                                 progress = 2 * totalIterations - 2 * i;
                             }
@@ -62,7 +57,7 @@ class Hospital{
                     }
                 };
                 worker.execute();
-                int totalWaitTime = 0,emergencyVisits = 0, overflow = 0;
+                int totalWaitTime = 0,emergencyVisits = 0, overflow = 0,totalOccupy=0;
                 int numDoctors = Integer.parseInt(gui.getTextField8());
                 int numPatients = Integer.parseInt(gui.getTextField6());
                 int numBeds = Integer.parseInt(gui.getTextField7());
@@ -79,7 +74,7 @@ class Hospital{
                 for(int i = 0; i < numDoctors; i++){
                     Doctor doctor = new Doctor();
                     doctors[i] = new Doctor(doctor.generateDocName(), doctor.generateAvailability());
-                } 
+                }
                 for(int i = 0; i <numPatients; i++){
                     Patient patient = new Patient();
                     patientQueue.add(new Patient(patient.generateID(), patient.generatePriority(), patient.generateName(),patient.generateArrivalTime(simulationDuration)));
@@ -141,17 +136,28 @@ class Hospital{
                             staffs[m].setAvailable(true);
                         }
                     }
+                    for(int n =0;n<numBeds;n++){
+                        if(!beds[n].getIsAvailable()){
+                            totalOccupy+=1;
+                        }
+                    }
                 }
 
                 while(!waitingArea.isEmpty()){
                     waitingArea.getNextPatient();
                     overflow+=1;
                 }
-                double averageWaitingTime = (double) totalWaitTime / numPatients;
-                gui.setField2Text(Double.toString(averageWaitingTime));
+                double averageOccupancy = (double) totalOccupy/simulationDuration;
+                float averageWaitingTime = (float) totalWaitTime / numPatients;
+                double efficiency = (((double) numPatients / simulationDuration) * ((double) totalTreatmentTime / numPatients) / (numDoctors + numBeds + numStaffs))*100;
+
+                gui.setField2Text(Float.toString(averageWaitingTime)+" hours");
                 gui.setField3Text(Integer.toString(overflow));
                 gui.setField4Text(Integer.toString(emergencyVisits));
+                gui.setField5Text(Double.toString(averageOccupancy));
+                gui.setField12Text(Double.toString(efficiency)+" %");
                 gui.setField1Text("Finished");
+                totalTreatmentTime=0;
             }
         });
     }
@@ -159,7 +165,6 @@ class Hospital{
         boolean doctorsAvailable = false;
         boolean bedsAvailable = false;
         boolean staffsAvailable = false;
-        
         for(int i = 0; i < numDoctors; i++){
             if (doctors[i].getBusyDuration() == 0 && doctors[i].getIsAvailable()) {
                 doctorsAvailable = true;
@@ -184,7 +189,7 @@ class Hospital{
         int duration;
         int x = patient.getPriority();
         boolean doctorsAvailable = false;
-        if (x == 1) {
+        if (x == 1){
             duration = 1;
         }else if(x == 2){
             duration = random.nextInt(4) + 1;
@@ -194,6 +199,7 @@ class Hospital{
         int assignedDoctorIndex = -1;
         int assignedBedIndex = -1;
         int assignedStaffIndex = -1;
+        totalTreatmentTime+= duration;
         patient.setTreatmentTime(duration);
 
         for (int i = 0; i < numDoctors; i++){
@@ -224,98 +230,13 @@ class Hospital{
             staffs[assignedStaffIndex].setBusyDuration(duration);
             staffs[assignedStaffIndex].setAvailable(false);
 
-            System.out.println("Name: " + patient.getName());
-            System.out.println("ID: " + patient.getId());
-            System.out.println("Priority: " + patient.getPriority());
-            System.out.println("Arrival Time: " + patient.getArrivalTime());
-            System.out.println("Treatment Time: " + patient.getTreatmentTime());
-            System.out.println("This patient is assigned to doctor " + doctors[assignedDoctorIndex].getName() + ". Bed ID is " + beds[assignedBedIndex].getId());
+            // SQL sql = new SQL();
+            // sql.insertPatientsData(patient);
         }
     }
-
-
-    // void effeciency()
-    //required/observed *100
-
-
-    //VOID findAavailableDoctor()
-
-
-    // public void simulate(int numPatients, int simulationDuration) {
-    //     Random random = new Random();
-
-    //     // Generate random arrival times for patients
-    //     for (int i = 1; i <= numPatients; i++) {
-    //         int arrivalTime = random.nextInt(simulationDuration);
-    //         patients.add(new Patient(i, "Patient " + i, arrivalTime));
-    //     }
-
-    //     // Sort patients based on arrival time
-    //     patients.sort(Comparator.comparingInt(Patient::getArrivalTime));
-
-    //     int currentTime = 0;
-    //     int patientsTreated = 0;
-    //     int totalWaitTime = 0;
-    //     int totalTreatmentTime = 0;
-
-    //     while (!patients.isEmpty() || patientsTreated < numPatients) {
-    //         // Check if there are patients in the waiting area
-    //         if (!waitingArea.isWaitingAreaEmpty()) {
-    //             // Treat the next patient in the waiting area
-    //             Patient nextPatient = waitingArea.getNextPatient();
-    //             Doctor doctor = findAvailableDoctor();
-
-    //             if (doctor != null) {
-    //                 // Assign the doctor to the patient
-    //                 doctor.setAvailable(false);
-    //                 nextPatient.setDepartureTime(currentTime);
-    //                 int treatmentTime = currentTime - nextPatient.getArrivalTime();
-    //                 totalTreatmentTime += treatmentTime;
-    //                 patientsTreated++;
-
-    //                 // Calculate the patient's wait time
-    //                 int waitTime = nextPatient.getDepartureTime() - nextPatient.getArrivalTime();
-    //                 totalWaitTime += waitTime;
-
-    //                 // Release the doctor and bed
-    //                 doctor.setAvailable(true);
-    //                 Bed bed = findBedForPatient(nextPatient);
-    //                 bed.setAvailable(true);
-    //                 bed.dischargePatient();
-    //             }
-    //         }
-
-    //         // Check if there are available beds and doctors
-    //         if (!beds.isEmpty() && findAvailableDoctor() != null) {
-    //             // Move patients from the arrival list to the waiting area
-    //             Iterator<Patient> iterator = patients.iterator();
-    //             while (iterator.hasNext()) {
-    //                 Patient patient = iterator.next();
-    //                 if (patient.getArrivalTime() <= currentTime) {
-    //                     if (assignPatientToBed(patient)) {
-    //                         iterator.remove();
-    //                     }
-    //                 } else {
-    //                     break;
-    //                 }
-    //             }
-    //         }
-
-    //         currentTime++;
-    //     }
-
-    //     double averageWaitTime = (double) totalWaitTime / numPatients;
-    //     double averageTreatmentTime = (double) totalTreatmentTime / numPatients;
-
-    //     System.out.println("Simulation Results");
-    //     System.out.println("Total Patients: " + numPatients);
-    //     System.out.println("Average Wait Time: " + averageWaitTime);
-    //     System.out.println("Average Treatment Time: " + averageTreatmentTime);
-    // }
 
     public static void main(String[] args){
         Hospital hospital = new Hospital();
         hospital.buttonRun();
-        //Hospital hospital = new Hospital(noOfDoc ,noOfPatients ,noOfBeds,noOfStaff,waitingAreaCapacity);
     }
 }

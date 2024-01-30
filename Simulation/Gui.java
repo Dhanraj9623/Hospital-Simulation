@@ -1,28 +1,19 @@
 import javax.swing.*;
 import java.awt.event.*;
 public class Gui{
-    boolean stopClicked;
     JFrame frame;
     JPanel panel;
-    JLabel label1,label2,label3,label4,label5,label6,label7,label8,label9,label10,label11;
-    JTextField field1,field2,field3,field4,field5,field6,field7,field8,field9,field10,field11;
+    JLabel label1,label2,label3,label4,label5,label6,label7,label8,label9,label10,label11,label12;
+    JTextField field1,field2,field3,field4,field5,field6,field7,field8,field9,field10,field11,field12;
     JButton button;
     JProgressBar progressBar;
     public Gui(){
-        stopClicked = false;
-        
-    }        
+    }
     JFrame getframe(){
         return frame;
     }
     JPanel getPanel(){
         return panel;
-    }
-    JLabel getLabel1(){
-        return label1;
-    }
-    JLabel getLabel2(){
-        return label2;
     }
     String getTextField1(){
         return field1.getText();
@@ -51,7 +42,7 @@ public class Gui{
     String getTextField11(){
         return field11.getText();
     }
-    
+
     JButton getButton(){
         return button;
     }
@@ -74,6 +65,9 @@ public class Gui{
     void setField5Text(String x){
         field5.setText(x);
     }
+    void setField12Text(String x){
+        field12.setText(x);
+    }
     void setProgressBarValue(int progress){
         progressBar.setValue(progress);
     }
@@ -88,11 +82,12 @@ public class Gui{
         label4 = new JLabel("Total Emergency Visits");
         label5 = new JLabel("Average Occupancy");
         label6 = new JLabel("Patients");
-        label7 = new JLabel("Beds"); 
-        label8 = new JLabel("Doctors"); 
+        label7 = new JLabel("Beds");
+        label8 = new JLabel("Doctors");
         label9 = new JLabel("Staff");
         label10 = new JLabel("Waiting Area Capacity");
         label11 = new JLabel("Simulation Duration");
+        label12 = new JLabel("Efficiency");
 
         field1 = new JTextField();
         field2 = new JTextField();
@@ -105,6 +100,7 @@ public class Gui{
         field9 = new JTextField("20");
         field10 = new JTextField("30");
         field11 = new JTextField("24");
+        field12 = new JTextField();
 
         button = new JButton("RUN");
         progressBar = new JProgressBar(0,100);
@@ -133,6 +129,8 @@ public class Gui{
         field10.setBounds(550, 170, 200, 30);
         label11.setBounds(420, 210, 150, 30);
         field11.setBounds(550, 210, 200, 30);
+        label12.setBounds(10, 210, 200, 30);
+        field12.setBounds(150, 210, 200, 30);
 
         button.setBounds(300,400,100,30);
         progressBar.setBounds(420,400,350,30);
@@ -149,6 +147,7 @@ public class Gui{
         panel.add(label9);
         panel.add(label10);
         panel.add(label11);
+        panel.add(label12);
 
         panel.add(field1);
         panel.add(field2);
@@ -161,6 +160,7 @@ public class Gui{
         panel.add(field9);
         panel.add(field10);
         panel.add(field11);
+        panel.add(field12);
 
         panel.add(button);
         panel.add(progressBar);

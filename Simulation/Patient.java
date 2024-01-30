@@ -9,7 +9,6 @@ class Patient {
     int arrivalTime;
     int treatmentTime;
     int dischargeTime;
-    int simulationDuration;
     Random random = new Random();
     public Patient(){
 
